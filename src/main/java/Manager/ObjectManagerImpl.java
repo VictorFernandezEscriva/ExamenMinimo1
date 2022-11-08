@@ -8,19 +8,16 @@ public class ObjectManagerImpl implements ObjectManager {
 
     // Atributos
 
-    int userId; // Para asignar una Id al Usuario
     List<ObjectClass> objects;
     HashMap<String,User> users;
-
 
    private static ObjectManager instance; // Creamos la interfaz de ObjectsManager
     final static Logger logger = Logger.getLogger(ObjectManagerImpl.class);
 
     // Funciones de inicialización
     public ObjectManagerImpl(){ // Inicializamos los vectores de la clase ObjectsManagerImpl
-        this.objects = new ArrayList<>();
+        this.objects = new LinkedList<>();
         this.users = new HashMap<>();
-        this.userId = 0;
     }
 
     public static ObjectManager getInstance(){ // Si no existe creamos una implementación (fachada) para la interfaz
@@ -30,101 +27,104 @@ public class ObjectManagerImpl implements ObjectManager {
 
     //Funciones para service
 
+    @Override
     public int size() {
         int ret = this.objects.size();
         logger.info("size " + ret);
         return ret;
     }
-
+    @Override
     public List<ObjectClass> findAll(){
         return this.objects;
     }
 
-    // Funciones
+
+    //FUNCTIONS RELATED WITH OBJECTS
     @Override
-    public List<ObjectClass> objectsByPrice() {
-        this.objects.sort((ObjectClass p1,ObjectClass p2)->Double.compare(p1.getCoins(),p2.getCoins()));
+    public List<ObjectClass> objectByDescendentPrice(){
+        this.objects.sort((ObjectClass p2,ObjectClass p1)->Double.compare(p1.getCoins(),p2.getCoins()));
         return this.objects;
     }
-
     @Override
-    public List<ObjectClass> objectssBySales() {
-        this.objects.sort((Objects p1,Objects p2)->(p1.getNumSales() - p2.getNumSales()));
-        return this.Objectss;
+    public void addObject(String objectsId, String name, String descripcion, double price) {
+        ObjectClass p = new ObjectClass(objectsId, name, descripcion, price);
+        this.objects.add(p);
     }
     @Override
-    public void addObjects(String ObjectsId, String name, double price) {
-        Objects p = new Objects(ObjectsId, name, price);
-        this.Objectss.add(p);
+    public int numObject(){
+        return this.objects.size();
     }
-    @Override
-    public Objects getObjects(String ObjectsId) {
-        // for(Objects Objects : Objectss){
-        //     if( Objects.getObjectsId() == ObjectsId){
 
-        //   }
-        //}
-        Objects auxiliar = new Objects();
-        for (int i = 0; i < Objectss.size(); i++){
-            if(Objects.equals(Objectss.get(i).getObjectsId(), ObjectsId)){
-                auxiliar = this.Objectss.get(i);
+    // FUNCTIONS RELATED TO USERS
+    @Override
+    public int addUser(String userName, String userSurname, String date, String email, String password) {
+
+        int i = 0;
+        boolean encontrado = false;
+        while(i < this.users.size() && !encontrado){
+            if(Objects.equals(users.get(Integer.toString(i)).getCredentials().getEmail(), email)){
+                encontrado=true;
+                return 1;
+            }
+            else{
+                i++;
             }
         }
-        return auxiliar;
-    }
-    @Override
-    public int numObjectss() {
-        return this.Objectss.size();
-    }
-    @Override
-    public void addOrder(Order order) {
-        this.orders.add(order);
-    }
-
-    @Override
-    public Order processOrder() {
-        Order a = this.orders.poll();  // Sacamos la primera orden de la cola
-        this.users.get(a.getUserId()).getProcessedOrders().add(a); // Añadimos la orden a las ordenes procesadas del usuario
-        for(int i = 0; i < a.getElements().size(); i++){
-            for (int j = 0; j < this.Objectss.size(); j++){
-                if(Objects.equals(this.Objectss.get(j).getObjectsId(), a.getElements().get(i).getObjects())){
-                    this.Objectss.get(j).setNumSales(this.Objectss.get(j).getNumSales() + a.getElements().get(i).getQuantity());
-                }
-            }
+        if(!encontrado){
+            Credentials c = new Credentials(email, password);
+            User a = new User(Integer.toString(this.users.size()), userName, userSurname, date, c);
+            this.users.put(Integer.toString(this.users.size()),a);
+            return 0;
         }
-        return a;
-    }
 
-    @Override
-    public List<Order> ordersByUser(String userId) {
-        return this.users.get(userId).getProcessedOrders();
     }
     @Override
-    public int numOrders() {
-        return this.orders.size();
-    }
-    @Override
-    public int numSales(String b001) {
-        int aux = 0;
-        for(int i=0; i < this.Objectss.size(); i++){
-            if(Objects.equals(this.Objectss.get(i).getObjectsId(), b001)){
-                aux = this.Objectss.get(i).getNumSales();
+    public List<User> usersByAlphabet(){
+        List<User> aux = new ArrayList<>(this.users.values());
+        aux.sort((User p1,User p2)->{
+
+            int aux1 = String.CASE_INSENSITIVE_ORDER.compare(p1.getUserSurname(), p2.getUserSurname());
+            if(aux1==0) {
+                aux1 = String.CASE_INSENSITIVE_ORDER.compare(p1.getUserName(), p2.getUserName());
             }
-        }
+            return aux1;
+        });
         return aux;
     }
 
-    // FUNCIÓN DEL NUEVO EJERCICIO
     @Override
-    public void addUser(String userName, String userSurname, String date, String email, String password) {
-        Credentials c = new Credentials(email, password);
-        User a = new User(Integer.toString(this.userId), userName, userSurname, date, c);
-        //User b = new User(Integer.toString(this.users.size()), userName, userSurname, date, c, objectsUser);
-        this.userId = this.userId + 1;
-        this.users.put(Integer.toString(this.userId),a);
+    // cero login correcto, uno login incorrecto
+    public int loginUser(String email, String password){
+        Credentials aux = new Credentials(email,password);
+        int buscador = 1;
+        for(int i = 0; i< this.users.size(); i++){
+            if(Objects.equals(this.users.get(Integer.toString(i)).getCredentials(), aux)) {
+                buscador = 0;
+            }
+        }
+        return buscador;
     }
     @Override
-    public int numUsers() {
-        return this.users.size();
+    public int compraObjecto(String userId, String objectId){
+
+        if(!this.users.containsKey(userId)){
+            return 1;
+        }
+        int posicionobj=0;
+        for(int i=0; i<this.objects.size();i++){
+            if(Objects.equals(this.objects.get(i).getObjectId(), objectId)){
+                posicionobj = i;
+            }
+        }
+        if (this.users.get(userId).getMoney()<this.objects.get(posicionobj).getCoins()) {
+            return 2;
+        }
+        else{
+            this.users.get(userId).addCompra(this.objects.get(posicionobj),this.objects.get(posicionobj).getCoins());
+            return 0;
+        }
     }
-}
+    @Override
+    public List<ObjectClass> compraUser(String userId){
+        return this.users.get(userId).getObjectsUser();
+    }

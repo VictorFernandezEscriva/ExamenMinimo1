@@ -86,4 +86,10 @@ public class User {
     public void setObjectsUser(List<ObjectClass> objectsUser) {
         this.objectsUser = objectsUser;
     }
+
+    //FUNCIONES
+    public void addCompra(ObjectClass objectClass, double precio){
+        this.objectsUser.add(objectClass);
+        this.money=this.money-precio;
+    }
 }
