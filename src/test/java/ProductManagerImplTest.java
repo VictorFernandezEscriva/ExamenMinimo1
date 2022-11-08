@@ -8,11 +8,11 @@ import java.util.List;
 
 public class ProductManagerImplTest {
 
-    ProductManager pm;
+    ObjectManager pm;
 
     @Before
     public void setUp() {
-        pm = new ProductManagerImpl();
+        pm = new ObjectManagerImpl();
         pm.addUser("1111111", "Juan", "lopez");
         pm.addUser("2222222",  "David", "Rincon");
         pm.addUser("3333333",  "Juan", "Hernández");
