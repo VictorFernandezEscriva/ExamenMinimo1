@@ -2,6 +2,8 @@ package Manager;
 
 import Entity.*;
 import java.util.*;
+
+import Entity.V0.Credentials;
 import org.apache.log4j.Logger;
 
 public class ObjectManagerImpl implements ObjectManager {
@@ -59,12 +61,13 @@ public class ObjectManagerImpl implements ObjectManager {
     @Override
     public int addUser(String userName, String userSurname, String date, String email, String password) {
 
+        int aux=2;
         int i = 0;
         boolean encontrado = false;
         while(i < this.users.size() && !encontrado){
             if(Objects.equals(users.get(Integer.toString(i)).getCredentials().getEmail(), email)){
                 encontrado=true;
-                return 1;
+                aux=1;
             }
             else{
                 i++;
@@ -74,9 +77,9 @@ public class ObjectManagerImpl implements ObjectManager {
             Credentials c = new Credentials(email, password);
             User a = new User(Integer.toString(this.users.size()), userName, userSurname, date, c);
             this.users.put(Integer.toString(this.users.size()),a);
-            return 0;
+            aux=0;
         }
-
+        return aux;
     }
     @Override
     public List<User> usersByAlphabet(){
@@ -95,17 +98,16 @@ public class ObjectManagerImpl implements ObjectManager {
     @Override
     // cero login correcto, uno login incorrecto
     public int loginUser(String email, String password){
-        Credentials aux = new Credentials(email,password);
         int buscador = 1;
         for(int i = 0; i< this.users.size(); i++){
-            if(Objects.equals(this.users.get(Integer.toString(i)).getCredentials(), aux)) {
+            if(Objects.equals(this.users.get(Integer.toString(i)).getCredentials().getEmail(), email) && Objects.equals(this.users.get(Integer.toString(i)).getCredentials().getPassword(), password)) {
                 buscador = 0;
             }
         }
         return buscador;
     }
     @Override
-    public int compraObjecto(String userId, String objectId){
+    public int compraObjectos(String userId, String objectId){
 
         if(!this.users.containsKey(userId)){
             return 1;
@@ -128,3 +130,9 @@ public class ObjectManagerImpl implements ObjectManager {
     public List<ObjectClass> compraUser(String userId){
         return this.users.get(userId).getObjectsUser();
     }
+
+    @Override
+    public int numUsers(){
+        return this.users.size();
+    }
+}
