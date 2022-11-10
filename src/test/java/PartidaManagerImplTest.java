@@ -5,28 +5,24 @@ import org.junit.Before;
 import org.junit.Test;
 import Manager.*;
 import Entity.*;
-import Main.*;
-import org.apache.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.List;
 
-public class ObjectManagerImplTest {
+public class PartidaManagerImplTest {
 
-    final static Logger logger = Logger.getLogger(ObjectManagerImpl.class);
-    ObjectManager pm;
+    final static Logger logger = Logger.getLogger(PartidaManagerImpl.class);
+    PartidaManager pm;
 
     @Before
     public void setUp() {
-        this.pm = new ObjectManagerImpl();
-        this.pm.addUser("Aida", "Fernandez", "13/06/2001", "email1", "Victor");
-        this.pm.addUser("Esteban", "Fernandez", "3/12/1969", "email2", "Jose");
-        this.pm.addUser("Lidia",  "Escriva", "30/12/1970", "email3", "Lidia");
+        this.pm = new PartidaManagerImpl();
+        this.pm.addUser("2001","Victor");
+        this.pm.addUser("2002","Lidia");
+        this.pm.addUser("2003","Jose");
 
-        this.pm.addObject("B001", "Cocacola", "bebida refrescante", 1);
-        this.pm.addObject("C002", "Nestea", "Para combatir la calor", 1.5);
-        this.pm.addObject("A002", "Donut", "Para merendar",100);
-        this.pm.addObject("A003", "Galletas", "Para desayunar",1.25);
+        this.pm.addJuego("3001", "Juegoderol", 3);
+        this.pm.addJuego("3002", "Juegodetiros", 2);
+        this.pm.addJuego("3003", "Juegodeestrategia", 4);
     }
 
     @After
@@ -34,23 +30,18 @@ public class ObjectManagerImplTest {
         this.pm = null;
     }
 
-    //Punto 1
     @Test
     public void addUser(){
-        logger.info("Añado mal un usuario");
-        Assert.assertEquals(1,this.pm.addUser("Xaloc",  "Rodriguez", "30/12/1970", "email3", "Xaloc"));
-        logger.info("Añado bien un usuario");
-        Assert.assertEquals(0,this.pm.addUser("Xaloc",  "Rodriguez", "30/12/1970", "email4", "Xaloc"));
+        logger.info("Añado un usuario");
+        this.pm.addUser("2004","Marc");
+        Assert.assertEquals(2004,pm);
     }
 
     //Punto 3
     @Test
-    public void loginUser(){
-        logger.info("Entramos bien con un user");
-        Assert.assertEquals(0, this.pm.loginUser("email1", "Victor"));
-        logger.info("Entramos mal con un user");
-        Assert.assertEquals(1, this.pm.loginUser("email2", "Victor"));
-
+    public void addJuego(){
+        logger.info("Añado un juego");
+        Assert.assertEquals(0, .addJuego("3001", "Juegoderol", 3));
     }
 
     // Punto 4
@@ -83,7 +74,7 @@ public class ObjectManagerImplTest {
 
         Assert.assertEquals(0, this.pm.compraObjectos("0","B001"));
 
-        List<ObjectClass> ax = this.pm.compraUser("0");
+        List<Juego> ax = this.pm.compraUser("0");
 
         Assert.assertEquals("B001", ax.get(0).getObjectId());
 
@@ -92,7 +83,7 @@ public class ObjectManagerImplTest {
     // Punto 5
     @Test
     public void objectsSortByPrice() {
-        List<ObjectClass> obj = this.pm.objectByDescendentPrice();
+        List<Juego> obj = this.pm.objectByDescendentPrice();
 
         Assert.assertEquals("A002", obj.get(0).getObjectId());
         Assert.assertEquals(100, obj.get(0).getCoins(), 0);
