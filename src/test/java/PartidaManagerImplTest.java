@@ -85,9 +85,9 @@ public class PartidaManagerImplTest {
         Assert.assertEquals(50,this.pm.puntuacionActual("2001"));
         logger.info("Si no exite el usuario devuelve 0");
         Assert.assertEquals(0,this.pm.puntuacionActual("2007"));
-        logger.info("Si la partida esta finalizada devuelve 1000");
+        logger.info("Si la partida esta finalizada devuelve 1");
         this.pm.finalizarPartida("2001");
-        Assert.assertEquals(1000,this.pm.puntuacionActual("2001"));
+        Assert.assertEquals(1,this.pm.puntuacionActual("2001"));
     }
 
     @Test

@@ -97,7 +97,7 @@ public class PartidaManagerImpl implements PartidaManager {
             return aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().get(aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().size()-1).getNivel();
         }
     }
-    // 0 no existe usuario, 1000 Ninguna partida activa, x puntuacion actual
+    // 0 no existe usuario, 1 Ninguna partida activa, x puntuacion actual
     @Override
     public int puntuacionActual(String userId){
         User aux = this.users.get(userId);
@@ -105,7 +105,7 @@ public class PartidaManagerImpl implements PartidaManager {
             return 0;
         }
         else if(!aux.getPartidasList().get(aux.getPartidasList().size() - 1).isEstadoPartida()){
-            return 1000;
+            return 1;
         }
         else{
             return aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().get(aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().size()-1).getPuntos();

@@ -1,6 +1,6 @@
 package Services;
 
-import Entity.V0.Actividad;
+import Entity.V0.*;
 import Manager.*;
 import Entity.*;
 import io.swagger.annotations.Api;
@@ -82,42 +82,53 @@ public class PartidaService {
     }
 
     // 0 no existe usuario, 1000 Ninguna partida activa, x nivel actual
-    /*
     @GET
     @ApiOperation(value = "Nivel Actual", notes = "asdasd")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful", response = Integer, responseContainer="List"),
+            @ApiResponse(code = 201, message = "Successful", response = Nivel.class, responseContainer="class"),
+            @ApiResponse(code = 404, message = "No existe usuario"),
+            @ApiResponse(code = 405, message = "El usuario no tiene partidas activas")
     })
-    @Path("/NivelActual")
+    @Path("/NivelActual/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createPartida() {
+    public Response nivelActual(@PathParam("userId") String userId) {
 
-        int a = this.om.nivelActual();
-
-        GenericEntity<Integer> entity = new GenericEntity<Integer>() {};
-
-        return Response.status(201).entity(entity).build();
-    }
-
-
-
-    // 0 no existe usuario, 1000 Ninguna partida activa, x puntuacion actual
-    @POST
-    @ApiOperation(value = "Login de usuario", notes = "asdasd")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful"),
-            @ApiResponse(code = 404, message = "Login incorrecto")
-    })
-    @Path("/loginUser")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response loginUser(Actividad credentials) {
-        int aux = this.om.loginUser(credentials.getEmail(), credentials.getPassword());
-        if (aux == 1)  return Response.status(404).build();
-        else{
-            return Response.status(201).build();
+        int a = this.om.nivelActual(userId);
+        if(a==0){
+            return Response.status(404).build();
+        } else if (a==1000) {
+            return Response.status(405).build();
+        } else{
+            Nivel aux = new Nivel(a);
+            GenericEntity<Nivel> entity = new GenericEntity<Nivel>(aux) {};
+            return Response.status(201).entity(entity).build();
         }
     }
-    */
+
+    // 0 no existe usuario, 1000 Ninguna partida activa, x puntuacion actual
+    @GET
+    @ApiOperation(value = "Puntuacion Actual", notes = "asdasd")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response = PuntuacionActual.class, responseContainer="class"),
+            @ApiResponse(code = 404, message = "No existe usuario"),
+            @ApiResponse(code = 405, message = "El usuario no tiene partidas activas")
+    })
+    @Path("/PuntuacionActual/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response puntuacionActual(@PathParam("userId") String userId) {
+
+        int a = this.om.puntuacionActual(userId);
+        PuntuacionActual aux = new PuntuacionActual(a);
+        GenericEntity<PuntuacionActual> entity;
+        if(a==0){
+            return Response.status(404).build();
+        } else if (a==1) {
+            return Response.status(405).build();
+        } else{
+            entity = new GenericEntity<PuntuacionActual>(aux) {};
+            return Response.status(201).entity(entity).build();
+        }
+    }
 
     // 0 no existe el usuario, 1000 partida inactiva, 1 bien
     @PUT
