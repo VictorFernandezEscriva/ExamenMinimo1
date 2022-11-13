@@ -11,7 +11,8 @@ public class Actividad {
 
     //Constructores
 
-    public Actividad() {} // Constructor vacio
+    public Actividad() {
+    } // Constructor vacio
 
     public Actividad(int nivel, int puntos, String date) {
         this.nivel = nivel;
@@ -44,12 +45,6 @@ public class Actividad {
     public void setDate(String date) {
         this.date = date;
     }
-    //Funciones
-
-    public void sumarPuntos (int puntos){
-        this.puntos=this.puntos+puntos;
-    }
-    public void sumarNivel (int nivel){
-        this.nivel=
-    }
 }
+
+

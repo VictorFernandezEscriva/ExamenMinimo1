@@ -15,7 +15,7 @@ public interface PartidaManager {
 
     void addJuego(String juegoId, String juegoDescription, int nivelMaximo);
 
-    void inicioPartida(String userId, String juegoId, String fecha);
+    int inicioPartida(String userId, String juegoId, String fecha);
 
     // 0 no existe usuario, 1000 Ninguna partida activa, x nivel actual
     int nivelActual(String userId);
@@ -26,9 +26,13 @@ public interface PartidaManager {
     // 0 no existe el usuario,
     int pasarNivel(String userId, int puntos, String fecha);
 
-    void finalizarPartida(String userId);
+    int finalizarPartida(String userId);
 
     List<Partida> partidasDeUser(String userId);
 
     List<Actividad> actividadUserPartida(String userId, String juegoId);
+
+    int numUsers();
+
+    int numJuegos();
 }

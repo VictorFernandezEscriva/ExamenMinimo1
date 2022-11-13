@@ -1,3 +1,4 @@
+import Entity.V0.Actividad;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -23,6 +24,8 @@ public class PartidaManagerImplTest {
         this.pm.addJuego("3001", "Juegoderol", 3);
         this.pm.addJuego("3002", "Juegodetiros", 2);
         this.pm.addJuego("3003", "Juegodeestrategia", 4);
+
+        this.pm.inicioPartida("2002", "3001", "12/11/2022");
     }
 
     @After
@@ -32,90 +35,106 @@ public class PartidaManagerImplTest {
 
     @Test
     public void addUser(){
-        logger.info("Añado un usuario");
+        logger.info("Comprobamos que hay 3 usuarios añadidos");
+        Assert.assertEquals(3,pm.numUsers());
+        logger.info("Añado nuevo usuario");
         this.pm.addUser("2004","Marc");
-        Assert.assertEquals(2004,pm);
+        logger.info("Comprobamos que hay 4 usuarios añadidos");
+        Assert.assertEquals(4,pm.numUsers());
     }
 
-    //Punto 3
     @Test
     public void addJuego(){
-        logger.info("Añado un juego");
-        Assert.assertEquals(0, .addJuego("3001", "Juegoderol", 3));
+        logger.info("Comprobamos que hay 3 juego añadidos");
+        Assert.assertEquals(3,pm.numJuegos());
+        logger.info("Añado nuevo juego");
+        this.pm.addJuego("3004", "Juegoderol", 10);
+        logger.info("Comprobamos que hay 4 juegos añadidos");
+        Assert.assertEquals(4,pm.numJuegos());
     }
 
-    // Punto 4
     @Test
-    public void testAddObject() {
-        Assert.assertEquals(4, this.pm.numObject());
-
-        this.pm.addObject("22", "Monster", "Bebida con cafeina", 3);
-
-        Assert.assertEquals(5, this.pm.numObject());
-
+    public void inicioPartida(){
+        logger.info("Le añadimos una partida a un usuario");
+        int aux = this.pm.inicioPartida("2001", "3001", "12/11/2022");
+        logger.info("Comprobamos que se ha añadido correctamente");
+        Assert.assertEquals("3001",this.pm.partidasDeUser("2001").get(this.pm.partidasDeUser("2001").size()-1).getJuegoId());
+        logger.info("Comprobamos que pasa si añadimos una partida habiendo ya una activa");
+        Assert.assertEquals(1,this.pm.inicioPartida("2001", "3002", "12/11/2022"));
+        logger.info("Devuelve un 1");
     }
 
-    // Punto 6
     @Test
-    public void processComprasTest() {
-        Assert.assertEquals(3, this.pm.numUsers());
-        Assert.assertEquals(4, this.pm.numObject());
-
-
-        Assert.assertEquals(0, this.pm.compraObjectos("0","B001"));
-        Assert.assertEquals(1, this.pm.compraObjectos("10","B001"));
-        Assert.assertEquals(2, this.pm.compraObjectos("1","A002"));
-
+    public void nivelActual(){
+        logger.info("Comprobamos que sale 0 cuando no existe el usuario");
+        Assert.assertEquals(0,this.pm.nivelActual("2004"));
+        logger.info("Le añadimos una partida a un usuario");
+        this.pm.inicioPartida("2001", "3001", "12/11/2022");
+        logger.info("Comprobamos que el nivel de esta partida sea 1");
+        Assert.assertEquals(1,this.pm.nivelActual("2001"));
+        this.pm.finalizarPartida("2001");
+        logger.info("Comprobamos que sale 1000 cuando el usuario no tiene partidas activas");
+        Assert.assertEquals(1000,this.pm.nivelActual("2001"));
     }
 
-    // Punto 7
     @Test
-    public void listOfBoughtObjects(){
-
-        Assert.assertEquals(0, this.pm.compraObjectos("0","B001"));
-
-        List<Juego> ax = this.pm.compraUser("0");
-
-        Assert.assertEquals("B001", ax.get(0).getObjectId());
-
+    public void puntacionActual(){
+        logger.info("Le añadimos una partida a un usuario");
+        this.pm.inicioPartida("2001", "3001", "12/11/2022");
+        logger.info("Comprobamos que el nivel de esta partida sea 1");
+        Assert.assertEquals(50,this.pm.puntuacionActual("2001"));
+        logger.info("Si no exite el usuario devuelve 0");
+        Assert.assertEquals(0,this.pm.puntuacionActual("2007"));
+        logger.info("Si la partida esta finalizada devuelve 1000");
+        this.pm.finalizarPartida("2001");
+        Assert.assertEquals(1000,this.pm.puntuacionActual("2001"));
     }
 
-    // Punto 5
     @Test
-    public void objectsSortByPrice() {
-        List<Juego> obj = this.pm.objectByDescendentPrice();
-
-        Assert.assertEquals("A002", obj.get(0).getObjectId());
-        Assert.assertEquals(100, obj.get(0).getCoins(), 0);
-
-        Assert.assertEquals("C002", obj.get(1).getObjectId());
-        Assert.assertEquals(1.5, obj.get(1).getCoins(), 0);
-
-        Assert.assertEquals("A003", obj.get(2).getObjectId());
-        Assert.assertEquals(1.25, obj.get(2).getCoins(), 0);
-
-        Assert.assertEquals("B001", obj.get(3).getObjectId());
-        Assert.assertEquals(1, obj.get(3).getCoins(), 0);
-
-
-
-
-
-
+    public void pasarNivel(){
+        logger.info("Le añadimos una partida a un usuario");
+        this.pm.inicioPartida("2001", "3001", "12/11/2022");
+        logger.info("Pasamos a nivel 2");
+        this.pm.pasarNivel("2001",20,"13/11/2022");
+        Assert.assertEquals(70,this.pm.puntuacionActual("2001"));
+        Assert.assertEquals(2,this.pm.nivelActual("2001"));
+        logger.info("Si no exite el usuario devuelve 0");
+        Assert.assertEquals(0,this.pm.nivelActual("2007"));
+        logger.info("Si la partida esta finalizada devuelve 1000");
+        this.pm.finalizarPartida("2001");
+        Assert.assertEquals(1000,this.pm.nivelActual("2001"));
     }
 
-    // Punto 2
     @Test
-    public void usersSortBySurname() {
-
-        List<User> u = this.pm.usersByAlphabet();
-
-        Assert.assertEquals("Lidia", u.get(0).getUserName());
-
-        Assert.assertEquals("Aida", u.get(1).getUserName());
-
-        Assert.assertEquals("Esteban", u.get(2).getUserName());
-
+    public void finalizarPartidas(){
+        logger.info("Finalizamos la partida de un usuario");
+        this.pm.finalizarPartida("2002");
+        logger.info("Si la partida esta finalizada podremos iniciar otra partida con ese usuario");
+        Assert.assertEquals(0,this.pm.inicioPartida("2002", "3002", "12/11/2022"));
     }
 
+    @Test
+    public void partidasDeUser(){
+        logger.info("Lista de partidas de un usuario");
+        List<Partida>p = this.pm.partidasDeUser("2002");
+        Assert.assertEquals(1,p.size());
+        logger.info("Terminamos la partida");
+        this.pm.finalizarPartida("2002");
+        logger.info("Añadimos otra partida");
+        this.pm.inicioPartida("2002", "3002", "12/11/2022");
+        p = this.pm.partidasDeUser("2002");
+        Assert.assertEquals(2,p.size());
+    }
+
+    @Test
+    public void actividadUserPartida(){
+        logger.info("Actividad de un usuario");
+        List<Actividad>a = this.pm.actividadUserPartida("2002", "3001");
+        Assert.assertEquals(1,a.size());
+        logger.info("Subimos de nivel");
+        this.pm.pasarNivel("2002",30,"13/11/2022");
+        logger.info("Añadimos una nueva actividad");
+        a = this.pm.actividadUserPartida("2002", "3001");
+        Assert.assertEquals(2,a.size());
+    }
 }

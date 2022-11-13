@@ -50,11 +50,37 @@ public class PartidaManagerImpl implements PartidaManager {
         this.juegos.add(p);
     }
 
+    // 0 No hay partida activa 1 hay ya una partida activa 2 no existe el juego o el usuario
     @Override
-    public void inicioPartida(String userId, String  juegoId, String fecha) {
-        Actividad a = new Actividad(1,50, fecha);
-        Partida p = new Partida(userId,juegoId, a);
-        this.users.get(userId).addPartida(p);
+    public int inicioPartida(String userId, String  juegoId, String fecha) {
+
+        int i = 0;
+        boolean encontrado = false;
+        while(i < this.juegos.size() && !encontrado){
+            if(Objects.equals(juegoId, juegos.get(i).getJuegoId())){
+                encontrado=true;
+            }
+            else{
+                i++;
+            }
+        }
+        User aux = this.users.get(userId);
+        if(aux.getPartidasList().size()==0){
+            Actividad a = new Actividad(1,50, fecha);
+            Partida p = new Partida(userId,juegoId, a);
+            this.users.get(userId).addPartida(p);
+            return 0;
+        } else if (!aux.getPartidasList().get(aux.getPartidasList().size() - 1).isEstadoPartida() ) {
+            Actividad a = new Actividad(1,50, fecha);
+            Partida p = new Partida(userId,juegoId, a);
+            this.users.get(userId).addPartida(p);
+            return 0;
+        } else if (!this.users.containsKey(userId)|| !encontrado) {
+            return 2;
+        } else{
+            return 1;
+        }
+
     }
 
     // 0 no existe usuario, 1000 Ninguna partida activa, x nivel actual
@@ -86,7 +112,7 @@ public class PartidaManagerImpl implements PartidaManager {
         }
     }
 
-    // 0 no existe el usuario,
+    // 0 no existe el usuario, 1000 partida inactiva, 1 bien
     @Override
     public int pasarNivel(String userId, int puntos, String fecha){
 
@@ -116,17 +142,28 @@ public class PartidaManagerImpl implements PartidaManager {
                 finalizarPartida(userId);
             }
             else{
-                Actividad a = new Actividad(aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().get(aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().size()-1).getNivel()+1,aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().get(aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().size()-1).getNivel() + puntos, fecha);
+                Actividad a = new Actividad(aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().get(aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().size()-1).getNivel()+1,aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().get(aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().size()-1).getPuntos() + puntos, fecha);
                 aux.getPartidasList().get(aux.getPartidasList().size() - 1).getActividad().add(a);
             }
         }
         return res;
 
     }
+
+    // 0 si no existe la id de usuario, 1 si OK, 2 si no tiene ninguna partida activa
     @Override
-    public void finalizarPartida(String userId){
+    public int finalizarPartida(String userId){
+
         User aux = this.users.get(userId);
-        aux.getPartidasList().get(aux.getPartidasList().size() - 1).setEstadoPartida(false);
+        if(!this.users.containsKey(userId)){
+            return 0;
+        } else if (!aux.getPartidasList().get(aux.getPartidasList().size() - 1).isEstadoPartida()) {
+            return 2;
+        }
+        else{
+            aux.getPartidasList().get(aux.getPartidasList().size() - 1).setEstadoPartida(false);
+            return 1;
+        }
     }
 
     /*
@@ -165,5 +202,16 @@ public class PartidaManagerImpl implements PartidaManager {
             }
         }
         return a.getPartidasList().get(i).getActividad();
+    }
+
+    //FUNCIONES DE APOYO
+
+    @Override
+    public int numUsers(){
+        return this.users.size();
+    }
+    @Override
+    public int numJuegos(){
+        return this.juegos.size();
     }
 }
